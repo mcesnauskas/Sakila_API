@@ -11,5 +11,5 @@ public class CustomerResponse {
     private int page;
     private int pageSize;
     private int totalPage;
-    private List<Customer> data;
+    private List<Customer> listOfCustomers;
 }

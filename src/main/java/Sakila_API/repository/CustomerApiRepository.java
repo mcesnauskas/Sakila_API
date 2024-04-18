@@ -8,7 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
-public interface CustomerApiRepository extends CrudRepository<Customer, Integer> {
+public interface CustomerApiRepository extends CrudRepository<Customer, Short> {
 
     @Query(
             value = "SELECT * FROM customer",

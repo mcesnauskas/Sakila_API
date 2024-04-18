@@ -1,11 +1,14 @@
 package Sakila_API.controller;
 
+import Sakila_API.model.Customer;
 import Sakila_API.service.CustomerApiService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 import static Sakila_API.service.CustomerApiService.HEADERS_X_API_KEY;
@@ -33,7 +36,7 @@ public class CustomerApiController {
         );
     }
 
-    @GetMapping(path = "/{id}")
+    @GetMapping(path = "/get/{id}")
     public ResponseEntity<?> getCustomerById(
             @RequestHeader(value = "X-Api-Key") String apiKey,
             @RequestHeader(value = "Content-Type", defaultValue = "application/json") String content,
@@ -48,5 +51,39 @@ public class CustomerApiController {
         );
     }
 
+    @PostMapping(path = "/{id}")
+    public ResponseEntity<?> createNewCustomer(
+            @RequestHeader(value = "X-Api-Key") String apiKey,
+            @RequestHeader(value = "Content-Type", defaultValue = "application/json") String content,
+            @RequestBody Customer customer
+            ) {
+        return customerService.createNewCustomer(
+                Map.of(HEADERS_X_API_KEY, apiKey),
+                customer
+        );
+    }
 
+    @PatchMapping(path = "/{id}")
+    public ResponseEntity<?> updateCustomer(
+            @RequestHeader(value = "X-Api-Key") String apiKey,
+            @RequestHeader(value = "Content-Type", defaultValue = "application/json") String content,
+            @RequestBody Customer customer
+    ) {
+        return customerService.updateCustomer(
+                Map.of(HEADERS_X_API_KEY, apiKey),
+                customer
+        );
+    }
+
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<?> deleteCustomerById(
+            @RequestHeader(value = "X-Api-Key") String apiKey,
+            @RequestHeader(value = "Content-Type", defaultValue = "application/json") String content,
+            @PathVariable(name = "id") int customerId
+    ) {
+        return customerService.deleteCustomerById(
+                Map.of(HEADERS_X_API_KEY, apiKey),
+                customerId
+        );
+    }
 }

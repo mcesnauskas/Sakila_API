@@ -54,6 +54,80 @@ public class CustomerApiService {
         return ResponseEntity.ok(customer.get());
     }
 
+    public ResponseEntity<?> createNewCustomer(Map<String, String> headersParam, Customer customer) {
+        if (!this.apiKey.equals(headersParam.get(HEADERS_X_API_KEY))) {
+            return new ResponseEntity<>(message, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (customer == null) return new ResponseEntity<>("Empty response body", HttpStatus.BAD_REQUEST);
+
+        if (customer.getCustomerId() == null) {
+            return new ResponseEntity<>("Required customer ID", HttpStatus.BAD_REQUEST);
+        }
+
+        if (
+                customer.getStoreId() == null ||
+                        customer.getFirstName() == null ||
+                        customer.getLastName() == null ||
+                        customer.getAddressId() == null ||
+                        customer.getCreateDate() == null
+        ){
+            return new ResponseEntity<>("Check mandatory fields", HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<Customer> customerOptional = customerRepository.fetchCustomerById(Integer.valueOf(customer.getCustomerId()));
+
+        if (customerOptional.isEmpty()) {
+            customerRepository.save(customer);
+            return new ResponseEntity<>(
+                    "Customer ID: %s created successfully".formatted(customer.getCustomerId()),
+                    HttpStatus.CREATED);
+        }
+
+        return new ResponseEntity<>("Customer already exists", HttpStatus.CONFLICT);
+    }
+
+    public ResponseEntity<?> updateCustomer(Map<String, String> headersParam, Customer customer) {
+        if (!this.apiKey.equals(headersParam.get(HEADERS_X_API_KEY))) {
+            return new ResponseEntity<>(message, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (customer == null) return new ResponseEntity<>("Empty response body", HttpStatus.BAD_REQUEST);
+
+        if (
+                customer.getCustomerId() == null ||
+                        customer.getStoreId() == null ||
+                        customer.getFirstName() == null ||
+                        customer.getLastName() == null ||
+                        customer.getAddressId() == null ||
+                        customer.getCreateDate() == null
+        ) {
+            return new ResponseEntity<>("Missed mandatory field, please check", HttpStatus.BAD_REQUEST);
+        }
+
+        Optional<Customer> customerOptional = customerRepository.fetchCustomerById(Integer.valueOf(customer.getCustomerId()));
+        if (customerOptional.isEmpty()) return new ResponseEntity<>("Customer not found", HttpStatus.NOT_FOUND);
+
+        customerRepository.save(customer);
+
+        return new ResponseEntity<>("Customer updated successfully", HttpStatus.ACCEPTED);
+    }
+
+    public ResponseEntity<?> deleteCustomerById(Map<String, String> headersParam, int customerId) {
+        if (!this.apiKey.equals(headersParam.get(HEADERS_X_API_KEY))) {
+            return new ResponseEntity<>(message, HttpStatus.UNAUTHORIZED);
+        }
+
+        if (customerId < 0) return new ResponseEntity<>("Incorrect customer ID", HttpStatus.BAD_REQUEST);
+
+        Optional<Customer> customerOptional = customerRepository.fetchCustomerById(customerId);
+        if (customerOptional.isEmpty()) return new ResponseEntity<>("Customer not found", HttpStatus.NOT_FOUND);
+
+        customerRepository.deleteById((short) customerId);
+
+        return new ResponseEntity<>("Customer ID: %s was deleted".formatted(customerId), HttpStatus.ACCEPTED);
+    }
+
     // ***
 
     private int toNumberOrDefault(String value, int defaultValue) {
